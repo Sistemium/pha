@@ -22,7 +22,8 @@ create or replace procedure stgp.Account (
         org,
         info,
         email,
-        roles
+        roles,
+        (select max(lastAuth) from pha.accesstoken where agent = agent.id) as lastAuth
     from bs.Agent
 
 end;

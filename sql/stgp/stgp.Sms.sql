@@ -3,7 +3,7 @@
     ch.defineProperties 'text,text';
     
     ch.defineEntity 'PHASms',
-        'text',
+        'text:mobileNumber',
         'account,bs.Agent'
     ;
     

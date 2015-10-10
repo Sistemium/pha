@@ -17,7 +17,7 @@ handler begin
     for c as c cursor for
         select
             string (trim(s.[text])) as @msg,
-            a.mobile_number as @num
+            isnull(s.mobileNumber,a.mobile_number) as @num
         from ch.PHASms () s
             join bs.Agent a on a.id = s.account 
         where s.ts between @last and @now
