@@ -1,9 +1,9 @@
 /*
 
-    ch.defineProperties 'mobileNumber,string:org,string:info,string:email,string:roles,string';
+    ch.defineProperties 'mobileNumber,string:org,string:info,string:email,string:roles,string:isDisabled,BOOL,0';
     
     ch.defineEntity 'PHAAccount',
-        'name:mobileNumber:org:info:email',
+        'name:mobileNumber:org:info:email:roles:isDisabled',
         ''
     ;
     
@@ -18,11 +18,12 @@ create or replace procedure stgp.Account (
     select id, xid, ts, cts,
         id as code,
         name,
-        mobile_number as mobileNumber,
+        substring(mobile_number,2) as mobileNumber,
         org,
         info,
         email,
         roles,
+        isnull(isDisabled,0) as isDisabled,
         (select max(lastAuth) from pha.accesstoken where agent = agent.id) as lastAuth
     from bs.Agent
 

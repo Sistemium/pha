@@ -19,9 +19,10 @@ handler begin
                 name,
                 org,
                 info,
-                mobileNumber as mobile_number,
+                string ('8', mobileNumber) as mobile_number,
                 email,
-                roles
+                roles,
+                isnull(isDisabled,0) as isDisabled
             from ch.PHAAccount ()
             where ts between @last and @now
         ) as d on d.xid = sp.xid
@@ -29,14 +30,17 @@ handler begin
         then insert
     when matched and xmlforest (
         d.name, d.email, d.info,
-        d.org, d.mobile_number, d.roles
+        d.org, d.mobile_number, d.roles, 
+        d.isDisabled
     ) <> xmlforest (
         sp.name, sp.email, sp.info,
-        sp.org, sp.mobile_number, sp.roles
+        sp.org, sp.mobile_number, sp.roles,
+        sp.isDisabled
     ) then update set
         name = d.name, email = d.email, info = d.info,
         org = d.org, mobile_number = d.mobile_number,
         roles = d.roles,
+        isDisabled = d.isDisabled,
         version = sp.version + 1
     ;
 
