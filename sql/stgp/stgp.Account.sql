@@ -25,6 +25,6 @@ create or replace procedure stgp.Account (
         roles,
         isnull(isDisabled,0) as isDisabled,
         (select max(lastAuth) from pha.accesstoken where agent = agent.id) as lastAuth
-    from bs.Agent
+    from pha.Agent
 
 end;

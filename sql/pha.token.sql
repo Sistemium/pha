@@ -38,7 +38,7 @@ create or replace procedure pha.token (
         pha.apiURL (a.org,@user_agent) apiUrl,
         t.token,
         a.name
-    from bs.Agent a
+    from pha.Agent a
         join pha.AccessToken t
         on t.agent = a.id
     where t.id = @at;

@@ -4,7 +4,7 @@
     
     ch.defineEntity 'PHASms',
         'text:mobileNumber',
-        'account,bs.Agent'
+        'account,pha.Agent'
     ;
     
     ch.createSp 'PHASms', 'stgp.Sms', 'ch';

@@ -19,7 +19,7 @@ handler begin
             string (trim(s.[text])) as @msg,
             isnull(s.mobileNumber,a.mobile_number) as @num
         from ch.PHASms () s
-            join bs.Agent a on a.id = s.account 
+            join pha.Agent a on a.id = s.account
         where s.ts between @last and @now
             and isnull(@msg,'') <> ''
     do

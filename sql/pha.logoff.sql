@@ -25,7 +25,7 @@ begin
             expiresAt = now(),
             @result = xmlconcat(
                 xmlelement('account',
-                    (select xmlforest(name) from bs.Agent where id = AccessToken.agent)
+                    (select xmlforest(name) from pha.Agent where id = AccessToken.agent)
                 ),
                 xmlelement('roles',xmlelement('role', xmlelement('code','logged-off')))
             )

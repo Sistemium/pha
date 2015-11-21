@@ -5,7 +5,7 @@ create or replace procedure pha.profileByAccount (
     declare @org string;
 
     select org into @org
-    from bs.Agent
+    from pha.Agent
     where id = @account;
 
     with directRole as (

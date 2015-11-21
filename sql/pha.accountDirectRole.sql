@@ -10,10 +10,10 @@ create or replace procedure pha.accountDirectRole (
     into @rolesInfo from (
         select
             trim(roles)
-        from bs.Agent where id = @account
+        from pha.Agent where id = @account
         union select
             trim(regexp_substr(info,'(?<=roles=)([^[:whitespace:]]*)'))
-        from bs.Agent where id = @account
+        from pha.Agent where id = @account
     ) as t (roles)
     where roles is not null
     ;
@@ -34,7 +34,7 @@ create or replace procedure pha.accountDirectRole (
 
     union select
         'salesman', string(salesman), null
-    from bs.Agent
+    from pha.Agent
     where id = @account
         and salesman is not null
 

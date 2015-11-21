@@ -41,7 +41,7 @@ begin
         where token = @token
             and expiresAt > now()
             and not exists (
-                select * from bs.Agent
+                select * from pha.Agent
                 where id = AccessToken.agent
                     and isDisabled = 1
             )
@@ -89,7 +89,7 @@ begin
             )
         )
         into @result
-        from bs.Agent
+        from pha.Agent
         where id = @agent
             and isDisabled = 0
     ;

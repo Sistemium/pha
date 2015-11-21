@@ -20,7 +20,7 @@ create global temporary table if not exists pha.log (
 comment on table pha.log is 'pha log, garbageCollected'
 ;
 
-create table if not exists bs.Agent (
+create table if not exists pha.Agent (
 
     [id]  ID
 
@@ -51,12 +51,12 @@ create table if not exists bs.Agent (
 
 );
 
-create unique index bs_Agent_token on bs.Agent (token);
-create unique index bs_Agent_mobile_number on bs.Agent (mobile_number);
+create unique index pha_Agent_token on pha.Agent (token);
+create unique index pha_Agent_mobile_number on pha.Agent (mobile_number);
 
 create table if not exists pha.AccessToken (
 
-    not null foreign key (agent) references bs.Agent on delete cascade,
+    not null foreign key (agent) references pha.Agent on delete cascade,
 
     code varchar (128),
     token varchar (128),
@@ -82,7 +82,7 @@ create table if not exists pha.AccessToken (
 
 create table pha.accountRole(
 
-    not null foreign key(account) references bs.agent,
+    not null foreign key(account) references pha.Agent,
 
     role STRING not null,
     data STRING,
@@ -101,15 +101,18 @@ create table pha.profile(
 
     name STRING not null,
     code STRING not null,
+    minBuild int null,
+    maxBuild int null,
 
     id ID, xid GUID,
     cts CTS, ts TS,
 
     unique (xid),
-    unique (code),
     primary key (id)
 
 );
+
+create index XK_pha_profile_code on pha.profile (code);
 
 create table pha.profileRole(
 
@@ -117,6 +120,8 @@ create table pha.profileRole(
 
     role STRING not null,
     data STRING,
+    minBuild int null,
+    maxBuild int null,
 
     ord int,
 

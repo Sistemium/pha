@@ -13,7 +13,7 @@ handler begin
     set @now = now();
     set @last = ch.getSetPersistData ('stgp.Account',@now);
 
-    merge into bs.Agent sp
+    merge into pha.Agent sp
         using with auto name (
             select xid, author, 1 as version,
                 name,
@@ -44,7 +44,7 @@ handler begin
         version = sp.version + 1
     ;
 
-    message current database, '.stgp.Account_chestEntityPersist merged bs.Agent rows: ',
+    message current database, '.stgp.Account_chestEntityPersist merged pha.Agent rows: ',
         @@rowcount, ', ms: ', datediff (ms,@now,now())
     ;
 
