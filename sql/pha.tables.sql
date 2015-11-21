@@ -57,6 +57,8 @@ create table if not exists pha.Agent (
 create unique index pha_Agent_token on pha.Agent (token);
 create unique index pha_Agent_mobile_number on pha.Agent (mobile_number);
 
+CREATE TEXT INDEX searcher on pha.Agent(id, name, mobile_number)
+
 create table if not exists pha.AccessToken (
 
     not null foreign key (agent) references pha.Agent on delete cascade,
