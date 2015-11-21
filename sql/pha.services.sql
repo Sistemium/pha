@@ -10,7 +10,7 @@ alter service pha
 
 sa_make_object 'service', 'phaV2';
 
-alter service pha
+alter service phaV2
     type 'raw'
     authorization off user "dba"
     url on
