@@ -1,6 +1,9 @@
 grant connect to pha;
 grant dba to pha;
 
+grant connect to stgp;
+grant dba to stgp;
+
 create global temporary table if not exists pha.log (
 
     service varchar (32),
