@@ -82,7 +82,10 @@ begin
                             xmlelement('role',xmlforest([code],[data]))
                             order by ar.code, ar.ord asc
                         )
-                        from pha.accountRole (Agent.id) ar
+                        from pha.accountRole (
+                            Agent.id,
+                            isnull(pha.agentBuildByUserAgent(@userAgent),0)
+                        ) ar
                     )
 
                 )
