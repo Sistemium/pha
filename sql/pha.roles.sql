@@ -72,6 +72,10 @@ begin
                 xmlconcat(
 
                     xmlelement('role', xmlelement('code','authenticated')),
+                    xmlelement('role',
+                        xmlelement('code','org'),
+                        xmlelement ('data',Agent.org)
+                    ),
 
                     if Agent.program_url is not null then
                         xmlelement('role', xmlelement('code','program-url'), xmlelement('data',Agent.program_url))
@@ -86,6 +90,7 @@ begin
                             Agent.id,
                             isnull(pha.agentBuildByUserAgent(@userAgent),0)
                         ) ar
+                        where code not in ('org')
                     )
 
                 )
