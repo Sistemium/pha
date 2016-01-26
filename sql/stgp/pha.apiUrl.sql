@@ -5,8 +5,8 @@ create or replace function pha.apiURL (
 begin
 
     return string (
-        'https://api.sistemium.com/api',
-        if @org = 'dr50' then '2' endif,
+        'https://api.sistemium.com/',
+        pha.orgToAPIRoot (@org),
         '/',
         if @user_agent like '%iSistemium%' then 'v1' else 'v3' endif,
         '/',

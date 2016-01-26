@@ -18,7 +18,7 @@ begin
     return string (
         'https://', case
             when @program regexp ('(^|.*[/])tp$') then 'sistemium.com'
-            else string ('api.sistemium.com/api', if @org = 'dr50' then '2' endif, '/v1')
+            else string ('api.sistemium.com/', pha.orgToAPIRoot (@org), '/v1')
         end,
         '/', @org,
         '/', @program,
