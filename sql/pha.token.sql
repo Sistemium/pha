@@ -5,6 +5,10 @@ create or replace procedure pha.token (
 ) begin
 
     declare @at IDREF;
+    declare @version int;
+    declare @res string;
+
+    set @version = isnull(pha.agentBuildByUserAgent (http_decode(@user_agent)),0);
 
     update pha.AccessToken set
         @at = id,
@@ -24,12 +28,15 @@ create or replace procedure pha.token (
         ;
     end if;
 
+    message current database, '.pha.token user-agent:', @user_agent, ' id:', @id;
+
     select
         a.id,
         pha.startURL (
             a.org,
             case
-                when @user_agent like '%iSistemium%' then 'stc.entity'
+                when @version > 200 then 'Entity'
+                when @user_agent like 'iSis%' then 'stc.entity'
                 when a.program_url like 'http%' then ''
                 else a.program_url
             end,

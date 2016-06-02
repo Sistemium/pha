@@ -16,11 +16,12 @@ begin
     end if;
 
     return string (
-        'https://', case
-            when @program regexp ('(^|.*[/])tp$') then 'sistemium.com'
-            else string ('api.sistemium.com/', pha.orgToAPIRoot (@org), '/v1')
+        case
+            when @program = 'Entity' then ''
+            when @program regexp ('(^|.*[/])tp$') then 'https://sistemium.com/'
+            else string ('https://api.sistemium.com/', pha.orgToAPIRoot (@org), '/v1/')
         end,
-        '/', @org,
+        @org,
         '/', @program,
         case
             when @program regexp ('(^|.*[/])tp$') then
