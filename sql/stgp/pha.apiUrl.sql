@@ -7,7 +7,7 @@ begin
     declare @version int;
     declare @res string;
 
-    set @version = isnull(pha.agentBuildByUserAgent (@user_agent),0);
+    set @version = isnull(pha.agentBuildByUserAgent (http_decode(@user_agent)),0);
 
     set @res =
         if @version > 200 then
