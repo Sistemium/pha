@@ -138,59 +138,15 @@ create table pha.profileRole(
 
 );
 
-create table pha.client(
+util.setUserOption 'asamium.default.domain', 'pha';
 
-    name STRING not null,
-    clientID STRING not null,
-    clientSecret STRING not null,
-    trustedClient BOOL,
+meta.defineType 'name:STRING';
+meta.defineType 'clientID:STRING',
+meta.defineType 'clientSecret:STRING',
+meta.defineType 'trustedClient:BOOL,,nullable',
 
-    id ID, xid GUID,
-    cts CTS, ts TS,
+meta.defineEntity 'Client',
+    'name,clientID,clientSecret,trustedClient'
+;
 
-    unique (xid),
-    primary key (id)
-);
-
-create table pha.refreshToken(
-
-    token STRING not null,
-    userID STRING not null,
-    clientID STRING not null,
-    scope STRING,
-
-    id ID, xid GUID,
-    cts CTS, ts TS,
-
-    unique (xid),
-    primary key (id)
-);
-
-create table pha.accessToken(
-
-    token STRING not null,
-    expirationDate TIMESTAMP not null,
-    clientID STRING not null,
-    scope STRING,
-
-    id ID, xid GUID,
-    cts CTS, ts TS,
-
-    unique (xid),
-    primary key (id)
-);
-
-create table pha.authorizationCode(
-
-    code STRING not null,
-    clientID STRING not null,
-    userID STRING not null,
-    redirectURI STRING not null,
-    scope STRING,
-
-    id ID, xid GUID,
-    cts CTS, ts TS,
-
-    unique (xid),
-    primary key (id)
-);
+meta.createTable 'Client',0,1;
