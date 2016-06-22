@@ -141,12 +141,13 @@ create table pha.profileRole(
 util.setUserOption 'asamium.default.domain', 'pha';
 
 meta.defineType 'name:STRING';
-meta.defineType 'clientID:STRING',
-meta.defineType 'clientSecret:STRING',
-meta.defineType 'trustedClient:BOOL,,nullable',
+meta.defineType 'clientID:STRING';
+meta.defineType 'clientSecret:STRING';
+meta.defineType 'trustedClient:BOOL,,nullable';
+meta.defineType 'isDisabled:BOOL';
 
 meta.defineEntity 'Client',
-    'name,clientID,clientSecret,trustedClient'
+    'isDisabled;name;clientID;clientSecret;trustedClient'
 ;
 
 meta.createTable 'Client',0,1;
