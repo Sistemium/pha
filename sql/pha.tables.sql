@@ -59,30 +59,31 @@ create unique index pha_Agent_mobile_number on pha.Agent (mobile_number);
 
 CREATE TEXT INDEX searcher on pha.Agent(id, name, mobile_number)
 
-create table if not exists pha.AccessToken (
-
-    not null foreign key (agent) references pha.Agent on delete cascade,
-
-    code varchar (128),
-    token varchar (128),
-    expiresIn integer,
-    expiresAt timestamp,
-    lastAuth timestamp,
-    lastUserAgent STRING,
-
-    version int default 1,
-
-    id integer default autoincrement,
-    cts datetime default current timestamp,
-    ts datetime default timestamp,
-
-    xid uniqueidentifier default newid(),
-
-    unique (token),
-    unique (xid),
-    primary key (id)
-
-);
+--create table if not exists pha.AccessToken (
+--
+--    not null foreign key (agent) references pha.Agent on delete cascade,
+--    not null foreign key (client) references pha.Client on delete cascade,
+--
+--    code varchar (128),
+--    token varchar (128),
+--    expiresIn integer,
+--    expiresAt timestamp,
+--    lastAuth timestamp,
+--    lastUserAgent STRING,
+--
+--    version int default 1,
+--
+--    id integer default autoincrement,
+--    cts datetime default current timestamp,
+--    ts datetime default timestamp,
+--
+--    xid uniqueidentifier default newid(),
+--
+--    unique (token),
+--    unique (xid),
+--    primary key (id)
+--
+--);
 
 
 create table pha.accountRole(
@@ -137,17 +138,3 @@ create table pha.profileRole(
     primary key (id)
 
 );
-
-util.setUserOption 'asamium.default.domain', 'pha';
-
-meta.defineType 'name:STRING';
-meta.defineType 'clientID:STRING';
-meta.defineType 'clientSecret:STRING';
-meta.defineType 'trustedClient:BOOL,,nullable';
-meta.defineType 'isDisabled:BOOL';
-
-meta.defineEntity 'Client',
-    'isDisabled;name;clientID;clientSecret;trustedClient'
-;
-
-meta.createTable 'Client',0,1;
