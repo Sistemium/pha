@@ -28,7 +28,7 @@ meta.defineEntity 'Client',
 
 meta.defineEntity 'Login',
     'code;expiresAt;attempts,,0;isDeleted',
-    'Client;Account;AccessToken,,nullable'
+    'Client,,nullable;Account;AccessToken,,nullable'
 ;
 
 meta.defineEntity 'AuthCode',
