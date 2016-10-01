@@ -8,6 +8,7 @@ meta.defineType 'secret:STRING';
 meta.defineType 'isTrusted:BOOL';
 meta.defineType 'isDisabled:BOOL';
 meta.defineType 'isDeleted:BOOL';
+meta.defineType 'isUsed:BOOL';
 meta.defineType 'code:STRING';
 meta.defineType 'token:STRING';
 meta.defineType 'expiresAt:TS';
@@ -32,7 +33,7 @@ meta.defineEntity 'Login',
 ;
 
 meta.defineEntity 'AuthCode',
-    'code;redirectURI,url;scope;isDeleted',
+    'code;redirectURI,url;scope;isUsed;isDeleted',
     'Client;Account;'
 ;
 
