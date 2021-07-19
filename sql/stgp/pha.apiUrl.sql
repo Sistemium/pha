@@ -13,7 +13,7 @@ begin
         if @version > 200 then
             string (
                 'https://socket',
-                if @org in ('dr50','dev') then '2' else '' endif,
+                if @org in ('dr50','dev','ae','dr50p') then '2' else '' endif,
                 '.sistemium.com/socket.io-client'
             )
         else
