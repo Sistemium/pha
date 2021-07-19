@@ -1,0 +1,1 @@
+util.setuserOption 'uoauth.pha.url', 'http://asa3.sistemium.net/STCentral/pha';
