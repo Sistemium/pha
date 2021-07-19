@@ -23,7 +23,7 @@ handler begin
         where s.ts between @last and @now
             and isnull(@msg,'') <> ''
     do
-        message 'stgp.Sms_chestEntityPersist sent: ',
+        message current database, '.stgp.Sms_chestEntityPersist sent: ',
             util.createSms(@num,@msg)
         ;
     end for;
