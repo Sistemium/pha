@@ -128,6 +128,7 @@ create table pha.profileRole(
     data STRING,
     minBuild int null,
     maxBuild int null,
+    rolesRe STRING,
 
     ord int,
 
