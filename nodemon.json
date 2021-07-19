@@ -1,0 +1,14 @@
+{
+  "execMap": {
+    "js": "node -r esm"
+  },
+  "env": {
+    "DEBUG": "stm:*",
+    "MONGOOSE_DEBUG": "true",
+    "MONGO_URL": "mng2.sistemium.net/pha",
+    "DEBUG_NAMESPACE": "stm:pha",
+    "ERROR_NAMESPACE": "stm:pha:error",
+    "PORT": "3130"
+  },
+  "watch":  ["src"]
+}

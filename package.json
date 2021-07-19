@@ -1,0 +1,43 @@
+{
+  "name": "pha",
+  "version": "1.0.0",
+  "description": "Phone authorization",
+  "main": "src/api",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha -r esm --exit",
+    "api": "nodemon src/api/index.js",
+    "build": "rm -rf dist && cp -rv src dist && cp package.json dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sistemium/pha.git"
+  },
+  "author": "Sistemium UAB",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sistemium/pha/issues"
+  },
+  "homepage": "https://github.com/Sistemium/pha#readme",
+  "dependencies": {
+    "@koa/router": "^10.0.0",
+    "esm": "^3.2.25",
+    "koa": "^2.13.1",
+    "koa-bodyparser": "^4.3.0",
+    "koa-logger": "^3.2.1",
+    "lodash": "^4.17.21",
+    "randomatic": "^3.1.1",
+    "sistemium-data": "^1.5.3",
+    "sistemium-debug": "^1.0.1",
+    "sistemium-mongo": "^1.11.0"
+  },
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "mocha": "^8.4.0",
+    "mock-mongoose": "^8.0.0",
+    "nodemon": "^2.0.12",
+    "supertest": "^6.1.3"
+  }
+}
