@@ -1,6 +1,12 @@
 import random from 'randomatic';
+import { startURL, agentBuildByUserAgent, apiURL } from './helpers';
 
 import { Account, AccessToken } from '../models';
+
+const TOKEN_LENGTH = 32;
+const TOKEN_CHARS = 'abcdefgh';
+const CODE_ATTEMPTS = 3;
+const TOKEN_SUFFIX = '@pha';
 
 export default async function (ctx) {
 
@@ -47,7 +53,7 @@ export async function token(ctx) {
 
   const { code, accountId, attempts } = accessToken;
 
-  ctx.assert(attempts < 3, 401, 'SMS code expired');
+  ctx.assert(attempts < CODE_ATTEMPTS, 401, 'SMS code expired');
 
   if (code !== smsCode) {
     await AccessToken.merge([{
@@ -57,7 +63,7 @@ export async function token(ctx) {
     ctx.throw(401, 'Wrong SMS code');
   }
 
-  const token = `${random('0?', 32, { chars: 'abcdefgh' })}@pha`;
+  const token = `${random('0?', TOKEN_LENGTH, { chars: TOKEN_CHARS })}${TOKEN_SUFFIX}`;
 
   await AccessToken.merge([{
     id,
@@ -67,13 +73,22 @@ export async function token(ctx) {
   }]);
 
   const account = await Account.findByID(accountId);
+  const { num, org, programUrl, name } = account;
+  const userAgent = ctx.get('user-agent');
+  const version = agentBuildByUserAgent(userAgent);
+  const program = () => {
+    if (version > 200) return 'Entity';
+    if (/^iSis/.test(userAgent)) return 'stc.entity';
+    if (/^http/.test(programUrl)) return '';
+    return programUrl;
+  };
 
   ctx.body = {
-    ID: '24',
+    ID: num,
     accessToken: token,
-    apiUrl: 'https://api.sistemium.com/api/v3/r50',
-    name: account.name,
-    // redirectUri: 'https://sistemium.com/r50/tp/?access-token=8d8903450f8093ac8fdb723330ad5c9c@pha'
+    apiUrl: apiURL(org, userAgent),
+    name,
+    redirectUri: startURL(org, program(), token),
   };
 
 }

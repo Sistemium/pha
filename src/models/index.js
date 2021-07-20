@@ -62,3 +62,7 @@ export async function connect(url) {
 export async function disconnect() {
   return adapter.disconnect()
 }
+
+export function mongooseModel(model) {
+  return adapter.getStoreModel(model.collection)
+}
