@@ -1,7 +1,10 @@
 import random from 'randomatic';
 import { startURL, agentBuildByUserAgent, apiURL } from './helpers';
+import dayjs from '../lib/dates';
 
 import { Account, AccessToken } from '../models';
+
+const { TOKEN_LIFETIME_DAYS = '365' } = process.env;
 
 const TOKEN_LENGTH = 32;
 const TOKEN_CHARS = 'abcdefgh';
@@ -69,7 +72,7 @@ export async function token(ctx) {
     id,
     code: null,
     token,
-    attempts: (attempts || 0) + 1,
+    expiresAt: dayjs().add(365, 'days'),
   }]);
 
   const account = await Account.findByID(accountId);

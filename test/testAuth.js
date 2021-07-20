@@ -20,9 +20,10 @@ describe('Auth API', function () {
     const props = {
       name: 'Money Star',
       mobileNumber,
+      salesman: 123,
       countryCode: '7',
       org: 'dev',
-      info: 'test',
+      info: 'stg,auth:*,supervisor:s1,supervisor:s2,salesman:233,salesman:123,stg',
     };
 
     const { body: account } = await api
@@ -63,7 +64,7 @@ describe('Auth API', function () {
 
   it('should check roles', async function () {
 
-    const { token } = await AccessToken.findOne();
+    const { token, accountId } = await AccessToken.findOne();
 
     expect(token).not.null;
 
@@ -79,7 +80,7 @@ describe('Auth API', function () {
       .get(`/roles/${token}`)
       .expect(200);
 
-    await api
+    const { body: roles } = await api
       .get('/roles')
       .set('authorization', token)
       .expect(200);
@@ -87,6 +88,25 @@ describe('Auth API', function () {
     await api
       .get(`/roles?access-token=1`)
       .expect(401);
+
+    expect(roles.account).to.eql({
+      code: '1',
+      name: 'Money Star',
+      'mobile-number': '0123456789',
+      org: 'dev',
+      authId: accountId,
+    });
+
+    expect(roles.token.expiresIn).to.greaterThan(1);
+    expect(roles.roles).to.eql({
+      auth: '*',
+      authenticated: true,
+      org: 'dev',
+      salesman: [233, 123],
+      stc: true,
+      stg: true,
+      supervisor: ['s1', 's2'],
+    });
 
   });
 
