@@ -1,6 +1,7 @@
 import Router from '@koa/router';
 import * as account from './account';
 import auth from './auth';
+import roles from './roles';
 
 const router = new Router();
 
@@ -13,5 +14,9 @@ router
 ;
 
 router.post('/auth', auth);
+
+router
+  .get('/roles', roles)
+  .get('/roles/:id', roles);
 
 export default router;

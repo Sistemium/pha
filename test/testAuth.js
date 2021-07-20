@@ -10,7 +10,7 @@ const api = supertest(app.callback());
 describe('Auth API', function () {
 
   before(checkConnectMongo);
-  beforeEach(beforeEachReset);
+  before(beforeEachReset);
   after(disconnectMongo);
 
   it('should do auth', async function () {
@@ -58,6 +58,35 @@ describe('Auth API', function () {
       name: 'Money Star',
       redirectUri: 'dev/Entity',
     });
+
+  });
+
+  it('should check roles', async function () {
+
+    const { token } = await AccessToken.findOne();
+
+    expect(token).not.null;
+
+    await api
+      .get(`/roles?access-token=${token}`)
+      .expect(200);
+
+    await api
+      .get(`/roles?access_token=${token}`)
+      .expect(200);
+
+    await api
+      .get(`/roles/${token}`)
+      .expect(200);
+
+    await api
+      .get('/roles')
+      .set('authorization', token)
+      .expect(200);
+
+    await api
+      .get(`/roles?access-token=1`)
+      .expect(401);
 
   });
 
