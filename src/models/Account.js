@@ -11,7 +11,7 @@ export default {
     info: String,
     org: String,
     email: String,
-    roles: String,
+    roles: {},
     salesman: Number,
     isDisabled: Boolean,
   },

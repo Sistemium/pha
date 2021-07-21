@@ -47,7 +47,7 @@ export default async function (ctx) {
 
 function accountRoles(account) {
 
-  const { info, salesman } = account;
+  const { info, salesman, roles: accountRoles } = account;
 
   const arrayRoles = parseInfoRoles(info);
 
@@ -65,6 +65,7 @@ function accountRoles(account) {
     org: account.org,
     stc: true,
     ...roles,
+    ...(accountRoles || {}),
   };
 
 }

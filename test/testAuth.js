@@ -24,6 +24,7 @@ describe('Auth API', function () {
       countryCode: '7',
       org: 'dev',
       info: 'stg,auth:*,supervisor:s1,supervisor:s2,salesman:233,salesman:123,stg',
+      roles: { stcTabs: [{ a: 1 }] },
     };
 
     const { body: account } = await api
@@ -106,6 +107,7 @@ describe('Auth API', function () {
       stc: true,
       stg: true,
       supervisor: ['s1', 's2'],
+      stcTabs: [{ a: 1 }],
     });
 
   });
