@@ -39,7 +39,7 @@ export default async function (ctx) {
 
   ctx.body = {
     account: {
-      code: account.num.toFixed(0),
+      code: (account.num || 0).toFixed(0),
       name: account.name,
       email: account.email,
       'mobile-number': account.mobileNumber,
@@ -47,7 +47,7 @@ export default async function (ctx) {
       authId: account.id,
     },
     token: {
-      expiresAt: expiresAt ? expiresDayJS.format('YYYY-MM-DD HH:mm:ss') : null,
+      expiresAt: expiresAt ? expiresDayJS.format('YYYY-MM-DDTHH:mm:ssZ') : null,
       expiresIn: expiresAt ? expiresDayJS.diff(new Date(), 'second') : null,
     },
     roles: {
