@@ -4,6 +4,7 @@ import CommonFieldsPlugin from 'sistemium-data/src/plugins/CommonFieldsPlugin';
 
 import DefAccount from './Account';
 import DefAccessToken from './AccessToken';
+import DefProfile from './Profile';
 
 import map from 'lodash/map';
 import mapValues from 'lodash/mapValues';
@@ -49,10 +50,12 @@ PHAModel.useStoreAdapter(adapter)
 
 export const Account = new PHAModel(DefAccount);
 export const AccessToken = new PHAModel(DefAccessToken);
+export const Profile = new PHAModel(DefProfile);
 
 export default {
   Account,
   AccessToken,
+  Profile,
 };
 
 export async function connect(url) {

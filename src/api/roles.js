@@ -1,11 +1,16 @@
-import { AccessToken, Account } from '../models';
+import { AccessToken, Account, Profile } from '../models';
 import dayjs from '../lib/dates';
+import { agentBuildByUserAgent } from './helpers';
 import mapValues from 'lodash/mapValues';
 import uniq from 'lodash/uniq';
+import groupBy from 'lodash/groupBy';
+import flatten from 'lodash/flatten';
+import filter from 'lodash/filter';
 
 export default async function (ctx) {
 
   const authorization = ctx.get('authorization');
+  const agentBuild = agentBuildByUserAgent(ctx.get('user-agent'));
   const { id } = ctx.params;
   const token = ctx.query.accessToken
     || ctx.query['access-token']
@@ -27,6 +32,11 @@ export default async function (ctx) {
   const { expiresAt } = accessToken;
   const expiresDayJS = dayjs(expiresAt);
 
+  const roles = {
+    ...accountRoles(account),
+    ...(account.roles || {}),
+  };
+
   ctx.body = {
     account: {
       code: account.num.toFixed(0),
@@ -40,14 +50,48 @@ export default async function (ctx) {
       expiresAt: expiresAt ? expiresDayJS.format('YYYY-MM-DD HH:mm:ss') : null,
       expiresIn: expiresAt ? expiresDayJS.diff(new Date(), 'second') : null,
     },
-    roles: accountRoles(account),
+    roles: {
+      ...(await accountProfileRoles(account, roles, agentBuild)),
+      ...roles,
+    },
   };
+
+}
+
+async function accountProfileRoles(account, roles, agentBuild) {
+
+  const { org } = account;
+  const keys = Object.keys(roles || {});
+
+  const profiles = await Profile.find({
+    $where: `function () {
+      const rolesRe = RegExp(this.rolesRe);
+      return RegExp(this.orgRe).test('${org}')
+        && ${JSON.stringify(keys)}.find(role => rolesRe.test(role));
+    }`
+  });
+
+  const profileRoles = flatten(profiles.map(({ roles }) => filter(roles, profileRoleFilter)));
+  const res = groupBy(profileRoles, 'role');
+
+  return mapValues(res, items => items.map(({ data }) => data));
+
+  function profileRoleFilter(profileRole) {
+    const {
+      minBuild, maxBuild,
+      rolesRe,
+    } = profileRole;
+    const re = new RegExp(rolesRe);
+    return (!rolesRe || keys.find(key => re.test(key)))
+      && (!minBuild || minBuild <= agentBuild)
+      && (!maxBuild || maxBuild >= agentBuild);
+  }
 
 }
 
 function accountRoles(account) {
 
-  const { info, salesman, roles: accountRoles } = account;
+  const { info, salesman } = account;
 
   const arrayRoles = parseInfoRoles(info);
 
@@ -65,7 +109,6 @@ function accountRoles(account) {
     org: account.org,
     stc: true,
     ...roles,
-    ...(accountRoles || {}),
   };
 
 }

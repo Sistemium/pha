@@ -8,7 +8,7 @@ const ORG_API_MAP = new Map([
 ]);
 
 export function agentBuildByUserAgent(userAgent) {
-  const [first] = userAgent.match(/^[^ ]+/);
+  const [first] = userAgent.match(/^[^ ]+/) || [];
   if (!first) {
     return 0;
   }

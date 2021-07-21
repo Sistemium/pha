@@ -3,7 +3,7 @@ import supertest from 'supertest';
 
 import app from '../src/api';
 import { beforeEachReset, checkConnectMongo, disconnectMongo } from './helpers';
-import { AccessToken } from '../src/models';
+import { AccessToken, Profile } from '../src/models';
 
 const api = supertest(app.callback());
 
@@ -65,6 +65,7 @@ describe('Auth API', function () {
 
   it('should check roles', async function () {
 
+    await createProfiles();
     const { token, accountId } = await AccessToken.findOne();
 
     expect(token).not.null;
@@ -84,6 +85,7 @@ describe('Auth API', function () {
     const { body: roles } = await api
       .get('/roles')
       .set('authorization', token)
+      .set('User-agent', 'iSisSales/250')
       .expect(200);
 
     await api
@@ -108,8 +110,43 @@ describe('Auth API', function () {
       stg: true,
       supervisor: ['s1', 's2'],
       stcTabs: [{ a: 1 }],
+      stcTabs2: [{ name: 'STMWKWebView' }],
     });
 
   });
 
 });
+
+async function createProfiles() {
+
+  await Profile.create({
+    rolesRe: '(salesman|supervisor)',
+    orgRe: 'dev',
+    minVersion: 250,
+    roles: [
+      {
+        role: 'stcTabs2',
+        data: { name: 'STMWKWebView' },
+        minBuild: 250,
+        maxBuild: 250,
+        rolesRe: 'stc',
+        ord: 1,
+      },
+      {
+        role: 'stcTabs2',
+        data: { name: 'STMWKWebView2' },
+        minBuild: 240,
+        maxBuild: 245,
+        rolesRe: null,
+        ord: 1,
+      },
+      {
+        role: 'stcTabs2',
+        data: { name: 'STMWKWebView3' },
+        rolesRe: 'none',
+        ord: 1,
+      }
+    ],
+  });
+
+}
