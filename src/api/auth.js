@@ -86,6 +86,11 @@ export async function token(ctx) {
     return programUrl;
   };
 
+  await Account.merge([{
+    id: accountId,
+    lastAuth: new Date(),
+  }]);
+
   ctx.body = {
     ID: num,
     accessToken: token,

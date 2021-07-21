@@ -14,5 +14,6 @@ export default {
     roles: {},
     salesman: Number,
     isDisabled: Boolean,
+    lastAuth: Date,
   },
 };
