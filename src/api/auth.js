@@ -2,14 +2,16 @@ import random from 'randomatic';
 import { startURL, agentBuildByUserAgent, apiURL } from './helpers';
 import dayjs from '../lib/dates';
 
-import { Account, AccessToken } from '../models';
+import { Account, AccessToken, mongooseModel } from '../models';
 
 const { TOKEN_LIFETIME_DAYS = '365' } = process.env;
+const TOKEN_LIFETIME = parseInt(TOKEN_LIFETIME_DAYS, 0);
 
 const TOKEN_LENGTH = 32;
 const TOKEN_CHARS = 'abcdefgh';
 const CODE_ATTEMPTS = 3;
 const TOKEN_SUFFIX = '@pha';
+const BAD_ATTEMPTS_MINUTES = 2;
 
 export default async function (ctx) {
 
@@ -37,6 +39,10 @@ export async function login(ctx) {
 
   const [account] = await Account.find({ mobileNumber });
   ctx.assert(account, 404, 'Unknown mobile number');
+
+  if (await shouldSuspendAccount(account)) {
+    ctx.throw(403, 'Account suspended');
+  }
 
   const { id } = await AccessToken.create({
     accountId: account.id,
@@ -72,7 +78,7 @@ export async function token(ctx) {
     id,
     code: null,
     token,
-    expiresAt: dayjs().add(365, 'days'),
+    expiresAt: dayjs().add(TOKEN_LIFETIME, 'days'),
   }]);
 
   const account = await Account.findByID(accountId);
@@ -99,4 +105,15 @@ export async function token(ctx) {
     redirectUri: startURL(org, program(), token),
   };
 
+}
+
+async function shouldSuspendAccount(account) {
+  const badTokens = await mongooseModel(AccessToken)
+    .find({
+      accountId: account.id,
+      code: { $ne: null },
+      cts: { $gt: dayjs().add(-BAD_ATTEMPTS_MINUTES, 'minutes').toISOString() },
+    })
+    .sort({ ts: -1 });
+  return badTokens.length >= CODE_ATTEMPTS;
 }
