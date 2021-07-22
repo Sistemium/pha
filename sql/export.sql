@@ -49,3 +49,20 @@ select util.jsonObject(string(
 from pha.agent a;
 
 output to c:\temp\pha.agent.txt quote '' encoding 'utf-8' delimited by '\x09';
+
+select util.jsonObject(string(
+    util.jsonString('token', token), ',',
+    util.jsonString('lastUserAgent', lastUserAgent), ',',
+    util.jsonString('id', lower(xid)), ',',
+    util.jsonString('accountId', (select lower(xid) from pha.Agent where id = agent)), ',',
+    string('"expiresAt":{"$date":"', replace(expiresAt, ' ', 'T'), 'Z"}'), ', ',
+    if lastAuth is not null then
+        string('"lastAuth":{"$date":"', replace(lastAuth, ' ', 'T'), 'Z"},')
+    endif,
+    string('"cts":{"$date":"', replace(cts, ' ', 'T'), 'Z"}')
+))
+from pha.AccessToken
+where expiresAt > today() - 30
+    and not exists (select * from pha.Agent where id = agent and isDisabled = 1);
+
+output to c:\temp\pha.accessToken.txt quote '' encoding 'utf-8' delimited by '\x09';
