@@ -29,16 +29,31 @@ select util.jsonObject(string(
     util.jsonString('email', email), ',',
     util.jsonString('info', info), ',',
     util.jsonString('stringRoles', roles), ',',
-    string('"roles":', util.jsonArray((select list(util.jsonObject(string(
-        util.jsonString('role', role), ',',
-        util.jsonInt('ord', ord), ',',
-        string('"data":', case
-            when data is null then 'null'
-            when data regexp '[0-9]+' then data
-            when data regexp '\[.*\]' or data regexp '\{.*\}' then data
-            else string ('"', data, '"')
-        end)
-    ))) from pha.accountRole where account = a.id))), ',',
+
+    string('"roles":', util.jsonObject((
+      select list(string ('"', code, '":', data)) from (
+        select
+          code,
+          if count (*) > 1 then
+            util.jsonArray(list(jsonData order by ord))
+          else
+            list (jsonData)
+          endif as data
+        from (
+          select role as code,
+            ord,
+            case
+              when data is null then 'true'
+              when data regexp '[0-9]+' then data
+              when data regexp '\[.*\]' or data regexp '\{.*\}' then data
+              else string ('"', data, '"')
+            end as jsonData
+          from pha.accountRole where account = a.id
+        ) as ar
+        group by code
+      ) as tr
+    )), ','),
+
     util.jsonString('org', org), ',',
     util.jsonBoolean('isDisabled', isDisabled), ',',
     if exists (select * from [pha].[accessToken] where [agent] = [a].[id] and lastAuth is not null) then
