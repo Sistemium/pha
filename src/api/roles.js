@@ -6,6 +6,11 @@ import uniq from 'lodash/uniq';
 import groupBy from 'lodash/groupBy';
 import flatten from 'lodash/flatten';
 import filter from 'lodash/filter';
+import forEach from 'lodash/forEach';
+import isString from 'lodash/isString';
+import { create as createXML } from 'xmlbuilder2';
+
+const XMLNS = 'http://unact.net/xml/oauth';
 
 export default async function (ctx) {
 
@@ -55,6 +60,11 @@ export default async function (ctx) {
       ...roles,
     },
   };
+
+  if (/\.xml/.test(ctx.path)) {
+    ctx.body = xmlRoles(ctx.body);
+    ctx.set('Content-Type', 'text/xml; charset=UTF-8');
+  }
 
 }
 
@@ -115,7 +125,11 @@ function accountRoles(account) {
 
 function parseInfoRoles(info) {
 
-  const split = (info || '').split(',');
+  if (!info) {
+    return {};
+  }
+
+  const split = info.split(',');
   const res = {};
 
   split.forEach(item => {
@@ -136,4 +150,35 @@ function parseValue(string) {
     return parseInt(string, 0);
   }
   return string;
+}
+
+function xmlRoles(roles) {
+
+  const root = createXML({ encoding: 'UTF-8' })
+    .ele(XMLNS, 'response');
+
+  const account = root.ele('account');
+
+  forEach(roles.account, (val, key) => {
+    account.ele(key).txt(val);
+  });
+
+  const token = root.ele('token');
+
+  forEach(roles.token, (val, key) => {
+    token.ele(key).txt(val);
+  });
+
+  const rolesElement = root.ele('roles');
+
+  forEach(roles.roles, (val, key) => {
+    const role = rolesElement.ele('role');
+    role.ele('code').txt(key);
+    if (val !== true) {
+      role.ele('data')
+        .txt(isString(val) ? val : JSON.stringify(val));
+    }
+  });
+
+  return root.end({ prettyPrint: true });
 }
