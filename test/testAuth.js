@@ -23,7 +23,7 @@ describe('Auth API', function () {
       salesman: 123,
       countryCode: '7',
       org: 'dev',
-      info: 'stg,auth:*,supervisor:s1,supervisor:s2,salesman:233,salesman:123,stg',
+      stringRoles: 'stg,auth:*,supervisor:s1,supervisor:s2,salesman:233,salesman:123,stg',
       roles: { stcTabs: [{ a: 1 }] },
     };
 

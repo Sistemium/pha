@@ -9,6 +9,7 @@ export default {
     mobileNumber: String,
     countryCode: String,
     info: String,
+    stringRoles: String,
     org: String,
     email: String,
     roles: {},

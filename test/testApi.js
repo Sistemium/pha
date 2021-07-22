@@ -22,7 +22,7 @@ describe('REST API', function () {
       mobileNumber: '0123456789',
       countryCode: '7',
       org: 'dev',
-      info: 'test',
+      stringRoles: 'test',
     };
 
     const { body: account } = await api

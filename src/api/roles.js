@@ -101,9 +101,9 @@ async function accountProfileRoles(account, roles, agentBuild) {
 
 function accountRoles(account) {
 
-  const { info, salesman } = account;
+  const { stringRoles, salesman } = account;
 
-  const arrayRoles = parseInfoRoles(info);
+  const arrayRoles = parseStringRolesRoles(stringRoles);
 
   if (salesman) {
     arrayRoles.salesman = [...(arrayRoles.salesman || []), salesman];
@@ -123,13 +123,13 @@ function accountRoles(account) {
 
 }
 
-function parseInfoRoles(info) {
+function parseStringRolesRoles(stringRoles) {
 
-  if (!info) {
+  if (!stringRoles) {
     return {};
   }
 
-  const split = info.split(',');
+  const split = stringRoles.split(',');
   const res = {};
 
   split.forEach(item => {
