@@ -17,6 +17,7 @@ router.post('/auth', auth);
 
 router
   .get('/roles.xml', roles)
+  .get('/roles.xml/:id', roles)
   .get('/roles', roles)
   .get('/roles/:id', roles);
 
