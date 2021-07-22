@@ -52,7 +52,7 @@ export default async function (ctx) {
       authId: account.id,
     },
     token: {
-      expiresAt: expiresAt ? expiresDayJS.format('YYYY-MM-DDTHH:mm:ssZ') : null,
+      expiresAt: expiresAt ? expiresDayJS.utc().format('YYYY-MM-DD HH:mm:ss') : null,
       expiresIn: expiresAt ? expiresDayJS.diff(new Date(), 'second') : null,
     },
     roles: {
