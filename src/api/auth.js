@@ -3,15 +3,16 @@ import { startURL, agentBuildByUserAgent, apiURL } from './helpers';
 import dayjs from '../lib/dates';
 
 import { Account, AccessToken, mongooseModel } from '../models';
+import sms from './sms';
 
-const { TOKEN_LIFETIME_DAYS = '365' } = process.env;
+const { TOKEN_LIFETIME_DAYS = '365', SMS_ORIGIN } = process.env;
 const TOKEN_LIFETIME = parseInt(TOKEN_LIFETIME_DAYS, 0);
 
 const TOKEN_LENGTH = 32;
 const TOKEN_CHARS = 'abcdefgh';
 const CODE_ATTEMPTS = 3;
 const TOKEN_SUFFIX = '@pha';
-const BAD_ATTEMPTS_MINUTES = 2;
+const BAD_ATTEMPTS_MINUTES = 0;
 
 export default async function (ctx) {
 
@@ -44,9 +45,15 @@ export async function login(ctx) {
     ctx.throw(403, 'Account suspended');
   }
 
+  const code = random('0', 6);
+
+  if (SMS_ORIGIN) {
+    await sms(mobileNumber, code);
+  }
+
   const { id } = await AccessToken.create({
     accountId: account.id,
-    code: random('0', 6),
+    code,
   });
 
   ctx.body = { ID: id };
