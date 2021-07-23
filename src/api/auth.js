@@ -34,6 +34,8 @@ export default async function (ctx) {
 
 }
 
+const AUTH_CODE_RE = /authcode=([\d]+)/;
+
 export async function login(ctx) {
 
   const { mobileNumber } = ctx.request.body;
@@ -45,9 +47,11 @@ export async function login(ctx) {
     ctx.throw(403, 'Account suspended');
   }
 
-  const code = random('0', 6);
+  const [, fixedCode] = (account.info || '').match(AUTH_CODE_RE) || [];
 
-  if (SMS_ORIGIN) {
+  const code = fixedCode || random('0', 6);
+
+  if (SMS_ORIGIN && !fixedCode) {
     await sms(mobileNumber, code);
   }
 
