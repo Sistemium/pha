@@ -56,6 +56,7 @@ export default async function (ctx) {
   };
 
   const result = {
+    id: token,
     account: {
       code: (account.num || 0).toFixed(0),
       name: account.name,
