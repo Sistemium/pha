@@ -9,8 +9,13 @@ import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
 import isString from 'lodash/isString';
 import { create as createXML } from 'xmlbuilder2';
+import { redisGet, redisSet } from './redis';
 
 const XMLNS = 'http://unact.net/xml/oauth';
+
+function redisKey(token, agentBuild) {
+  return `${token}-${agentBuild}`;
+}
 
 export default async function (ctx) {
 
@@ -24,6 +29,14 @@ export default async function (ctx) {
     || authorization;
 
   ctx.assert(token, 401);
+
+  const cacheKey = redisKey(token, agentBuild);
+  const cached = await redisGet(cacheKey);
+
+  if (cached) {
+    respond(ctx, cached);
+    return;
+  }
 
   const accessToken = await AccessToken.findOne({ token });
 
@@ -42,7 +55,7 @@ export default async function (ctx) {
     ...(account.roles || {}),
   };
 
-  ctx.body = {
+  const result = {
     account: {
       code: (account.num || 0).toFixed(0),
       name: account.name,
@@ -61,9 +74,19 @@ export default async function (ctx) {
     },
   };
 
+  await redisSet(cacheKey, result);
+
+  respond(ctx, result);
+
+}
+
+function respond(ctx, roles) {
+
   if (/\.xml/.test(ctx.path)) {
-    ctx.body = xmlRoles(ctx.body);
+    ctx.body = xmlRoles(roles);
     ctx.set('Content-Type', 'text/xml; charset=UTF-8');
+  } else {
+    ctx.body = roles;
   }
 
 }
