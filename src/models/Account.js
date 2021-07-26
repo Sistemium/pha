@@ -5,6 +5,7 @@ export default {
     num: {
       type: Number,
       setOnInsert: true,
+      unique: true,
     },
     mobileNumber: String,
     countryCode: String,
@@ -17,4 +18,8 @@ export default {
     isDisabled: Boolean,
     lastAuth: Date,
   },
+  indexes: [
+    { mobileNumber: 1 },
+    { email: 1 },
+  ],
 };
