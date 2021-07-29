@@ -74,6 +74,7 @@ const mongoAccount = mongooseModel(Account);
 
 async function nextNum() {
   const [max] = await mongoAccount.find({})
+    .limit(1)
     .sort({ num: -1 });
   return ((max && max.num) || 0) + 1;
 }
