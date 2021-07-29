@@ -5,14 +5,16 @@ import dayjs from '../lib/dates';
 import { Account, AccessToken, mongooseModel } from '../models';
 import sms from './sms';
 
-const { TOKEN_LIFETIME_DAYS = '365', SMS_ORIGIN } = process.env;
-const TOKEN_LIFETIME = parseInt(TOKEN_LIFETIME_DAYS, 0);
+const {
+  SMS_ORIGIN,
+  TOKEN_SUFFIX = '@pha',
+  TOKEN_CHARS = 'abcdefgh'
+} = process.env;
 
-const TOKEN_LENGTH = 32;
-const TOKEN_CHARS = 'abcdefgh';
-const CODE_ATTEMPTS = 3;
-const TOKEN_SUFFIX = '@pha';
-const BAD_ATTEMPTS_MINUTES = 0;
+const TOKEN_LIFETIME_DAYS = parseInt(process.env.TOKEN_LIFETIME_DAYS || '365', 0);
+const TOKEN_LENGTH = parseInt(process.env.TOKEN_LENGTH || '32', 0);
+const CODE_ATTEMPTS = parseInt(process.env.CODE_ATTEMPTS || '3', 0);
+const BAD_ATTEMPTS_MINUTES = parseInt(process.env.BAD_ATTEMPTS_MINUTES || '3', 0);
 
 export default async function (ctx) {
 
@@ -36,7 +38,7 @@ export default async function (ctx) {
 
 const AUTH_CODE_RE = /authcode=([\d]+)/;
 
-export async function login(ctx) {
+async function login(ctx) {
 
   const { mobileNumber } = ctx.request.body;
 
@@ -64,7 +66,7 @@ export async function login(ctx) {
 
 }
 
-export async function token(ctx) {
+async function token(ctx) {
 
   const { ID: id, smsCode } = ctx.request.body;
   const [accessToken] = await AccessToken.find({ id });
@@ -89,7 +91,7 @@ export async function token(ctx) {
     id,
     code: null,
     token,
-    expiresAt: dayjs().add(TOKEN_LIFETIME, 'days'),
+    expiresAt: dayjs().add(TOKEN_LIFETIME_DAYS, 'days'),
   }]);
 
   const account = await Account.findByID(accountId);
