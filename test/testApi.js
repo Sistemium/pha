@@ -1,4 +1,4 @@
-import { assert, expect } from 'chai';
+import { expect } from 'chai';
 import supertest from 'supertest';
 
 import app from '../src/api';
@@ -23,6 +23,7 @@ describe('REST API', function () {
       countryCode: '7',
       org: 'dev',
       stringRoles: 'test',
+      info: 'testInfo',
     };
 
     const { body: account } = await api
@@ -34,8 +35,10 @@ describe('REST API', function () {
 
     const { id: createdId } = account;
 
-    await api.get('/account')
+    await api.get(`/account/${createdId}`)
       .expect(200);
+
+    expect(props.info).not.null;
 
     props.info = null;
 
