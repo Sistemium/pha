@@ -1,5 +1,5 @@
 import { Model } from 'sistemium-data';
-import MongoStoreAdapter from 'sistemium-data/src/MongoStoreAdapter';
+import MongoStoreAdapter from 'sistemium-data-mongo';
 import CommonFieldsPlugin from 'sistemium-data/src/plugins/CommonFieldsPlugin';
 
 import DefAccount from './Account';

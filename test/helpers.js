@@ -1,4 +1,4 @@
-import { mongoose } from 'sistemium-data/src/MongoStoreAdapter';
+import { mongoose } from 'sistemium-data-mongo/src/MongoStoreAdapter';
 import { connect } from '../src/models';
 import { MockMongoose } from 'mock-mongoose';
 import { disconnect } from 'sistemium-mongo/lib/mongoose';
