@@ -4,6 +4,7 @@ import dayjs from '../lib/dates';
 
 import { Account, AccessToken, mongooseModel } from '../models';
 import sms from './sms';
+import sendmail from './email';
 
 const {
   SMS_ORIGIN,
@@ -21,11 +22,12 @@ export default async function (ctx) {
 
   const {
     mobileNumber,
+    email,
     ID,
     smsCode,
   } = ctx.request.body;
 
-  if (mobileNumber) {
+  if (mobileNumber || email) {
     return login(ctx);
   }
 
@@ -38,13 +40,25 @@ export default async function (ctx) {
 }
 
 const AUTH_CODE_RE = /authcode=(\d+)/;
+const EMAIL_RE = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
 async function login(ctx) {
 
-  const { mobileNumber } = ctx.request.body;
+  const { mobileNumber, email } = ctx.request.body;
 
-  const [account] = await Account.find({ mobileNumber });
-  ctx.assert(account, 404, 'Unknown mobile number');
+  const accountFilter = {};
+
+  if (mobileNumber) {
+    accountFilter.mobileNumber = mobileNumber;
+  }
+
+  if (email) {
+    ctx.assert(EMAIL_RE.test(email), 400, 'Invalid email');
+    accountFilter.email = email;
+  }
+
+  const [account] = await Account.find(accountFilter);
+  ctx.assert(account, 404, `Unknown ${mobileNumber ? 'mobileNumber' : 'email'}`);
 
   if (await shouldSuspendAccount(account)) {
     ctx.throw(403, 'Account suspended');
@@ -54,8 +68,12 @@ async function login(ctx) {
 
   const code = fixedCode || random('0', 6);
 
-  if (SMS_ORIGIN && !fixedCode) {
+  if (mobileNumber && SMS_ORIGIN && !fixedCode) {
     await sms(mobileNumber, code);
+  }
+
+  if (email) {
+    await sendmail(email, code);
   }
 
   const { id } = await AccessToken.create({
@@ -76,7 +94,7 @@ async function token(ctx) {
 
   const { code, accountId, attempts } = accessToken;
 
-  ctx.assert(attempts < CODE_ATTEMPTS, 401, 'SMS code expired');
+  ctx.assert(attempts < CODE_ATTEMPTS, 403, 'SMS code expired');
 
   if (code !== smsCode) {
     await AccessToken.merge([{
