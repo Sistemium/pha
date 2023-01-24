@@ -37,7 +37,7 @@ export default async function (ctx) {
 
 }
 
-const AUTH_CODE_RE = /authcode=([\d]+)/;
+const AUTH_CODE_RE = /authcode=(\d+)/;
 
 async function login(ctx) {
 
