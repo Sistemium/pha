@@ -8,7 +8,8 @@ import sms from './sms';
 const {
   SMS_ORIGIN,
   TOKEN_SUFFIX = '@pha',
-  TOKEN_CHARS = 'abcdefgh'
+  TOKEN_CHARS = 'abcdefgh',
+  FIXED_AUTH_CODE,
 } = process.env;
 
 const TOKEN_LIFETIME_DAYS = parseInt(process.env.TOKEN_LIFETIME_DAYS || '365', 0);
@@ -32,7 +33,7 @@ export default async function (ctx) {
     return token(ctx);
   }
 
-  ctx.throw(400);
+  ctx.throw(400, 'Either mobileNumber or ID required');
 
 }
 
@@ -49,7 +50,7 @@ async function login(ctx) {
     ctx.throw(403, 'Account suspended');
   }
 
-  const [, fixedCode] = (account.info || '').match(AUTH_CODE_RE) || [];
+  const [, fixedCode] = (account.info || '').match(AUTH_CODE_RE) || [null, FIXED_AUTH_CODE];
 
   const code = fixedCode || random('0', 6);
 
