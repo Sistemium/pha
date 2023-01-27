@@ -2,6 +2,11 @@ export default {
   collection: 'AccessToken',
   schema: {
     accountId: String,
+    accountData: {
+      name: String,
+      mobileNumber: String,
+      email: String,
+    },
     token: {
       type: String,
       unique: true,

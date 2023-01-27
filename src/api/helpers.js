@@ -12,7 +12,8 @@ export function agentBuildByUserAgent(userAgent) {
   if (!first) {
     return 0;
   }
-  return parseInt(first.match(/[\d]+$/)[0], 0) || 0;
+  const [num] = first.match(/\d+$/) || []
+  return num ? parseInt(num, 0) : 0;
 }
 
 export function apiURL(org, userAgent = 'iSistemium') {

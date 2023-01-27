@@ -2,6 +2,7 @@ import Router from '@koa/router';
 import * as account from './account';
 import auth from './auth';
 import roles from './roles';
+import { confirmRegister, registerInit } from './register';
 
 const router = new Router();
 
@@ -13,7 +14,11 @@ router
   .delete('/account/:id', account.deleteOne)
 ;
 
-router.post('/auth', auth);
+router
+  .post('/auth', auth)
+  .post('/register', registerInit)
+  .post('/confirm', confirmRegister)
+;
 
 router
   .get('/roles.xml', roles)

@@ -1,21 +1,10 @@
-import random from 'randomatic';
 import { startURL, agentBuildByUserAgent, apiURL } from './helpers';
 import dayjs from '../lib/dates';
 
 import { Account, AccessToken, mongooseModel } from '../models';
-import sms from './sms';
-import sendmail from './email';
+import { assertEmail } from '../services/validating';
+import { authorizeToken, authorizeTokenController, CODE_ATTEMPTS, createAuthTokenId } from '../services/authorizing';
 
-const {
-  SMS_ORIGIN,
-  TOKEN_SUFFIX = '@pha',
-  TOKEN_CHARS = 'abcdefgh',
-  FIXED_AUTH_CODE,
-} = process.env;
-
-const TOKEN_LIFETIME_DAYS = parseInt(process.env.TOKEN_LIFETIME_DAYS || '365', 0);
-const TOKEN_LENGTH = parseInt(process.env.TOKEN_LENGTH || '32', 0);
-const CODE_ATTEMPTS = parseInt(process.env.CODE_ATTEMPTS || '3', 0);
 const BAD_ATTEMPTS_MINUTES = parseInt(process.env.BAD_ATTEMPTS_MINUTES || '3', 0);
 
 export default async function (ctx) {
@@ -25,13 +14,17 @@ export default async function (ctx) {
     email,
     ID,
     smsCode,
+    code,
+    emailCode,
   } = ctx.request.body;
+
+  const authCode = code || smsCode || emailCode;
 
   if (mobileNumber || email) {
     return login(ctx);
   }
 
-  if (ID && smsCode) {
+  if (ID && authCode) {
     return token(ctx);
   }
 
@@ -40,12 +33,10 @@ export default async function (ctx) {
 }
 
 const AUTH_CODE_RE = /authcode=(\d+)/;
-const EMAIL_RE = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
 async function login(ctx) {
 
   const { mobileNumber, email } = ctx.request.body;
-
   const accountFilter = {};
 
   if (mobileNumber) {
@@ -53,8 +44,7 @@ async function login(ctx) {
   }
 
   if (email) {
-    ctx.assert(EMAIL_RE.test(email), 400, 'Invalid email');
-    accountFilter.email = email;
+    accountFilter.email = assertEmail(ctx, email);
   }
 
   const [account] = await Account.find(accountFilter);
@@ -64,54 +54,26 @@ async function login(ctx) {
     ctx.throw(403, 'Account suspended');
   }
 
-  const [, fixedCode] = (account.info || '').match(AUTH_CODE_RE) || [null, FIXED_AUTH_CODE];
+  const { id: accountId, info } = account;
+  const [, fixedCode] = (info || '').match(AUTH_CODE_RE) || [];
 
-  const code = fixedCode || random('0', 6);
+  const tokenData = {
+    mobileNumber,
+    email,
+    accountId,
+  };
 
-  if (mobileNumber && SMS_ORIGIN && !fixedCode) {
-    await sms(mobileNumber, code);
-  }
-
-  if (email) {
-    await sendmail(email, code);
-  }
-
-  const { id } = await AccessToken.create({
-    accountId: account.id,
-    code,
-  });
-
-  ctx.body = { ID: id };
+  ctx.body = { ID: await createAuthTokenId(accountId, tokenData, fixedCode) };
 
 }
 
-async function token(ctx) {
+export async function token(ctx) {
 
-  const { ID: id, smsCode } = ctx.request.body;
-  const [accessToken] = await AccessToken.find({ id });
+  const accessToken = await authorizeTokenController(ctx);
 
-  ctx.assert(accessToken, 404);
+  const { accountId } = accessToken;
 
-  const { code, accountId, attempts } = accessToken;
-
-  ctx.assert(attempts < CODE_ATTEMPTS, 403, 'SMS code expired');
-
-  if (code !== smsCode) {
-    await AccessToken.merge([{
-      id,
-      attempts: (attempts || 0) + 1,
-    }]);
-    ctx.throw(401, 'Wrong SMS code');
-  }
-
-  const token = `${random('0?', TOKEN_LENGTH, { chars: TOKEN_CHARS })}${TOKEN_SUFFIX}`;
-
-  await AccessToken.merge([{
-    id,
-    code: null,
-    token,
-    expiresAt: dayjs().add(TOKEN_LIFETIME_DAYS, 'days'),
-  }]);
+  ctx.assert(accountId, 400, 'Account is not registered');
 
   const account = await Account.findByID(accountId);
   const { num, org, programUrl, name } = account;
@@ -129,6 +91,8 @@ async function token(ctx) {
     lastAuth: new Date(),
   }]);
 
+  const { token } = accessToken;
+
   ctx.body = {
     ID: num,
     accessToken: token,
@@ -142,6 +106,7 @@ async function token(ctx) {
 async function shouldSuspendAccount(account) {
   const badTokens = await mongooseModel(AccessToken)
     .find({
+      // attempts doesn't matter we don't want to send too many sms
       accountId: account.id,
       code: { $ne: null },
       cts: { $gt: dayjs().add(-BAD_ATTEMPTS_MINUTES, 'minutes').toISOString() },

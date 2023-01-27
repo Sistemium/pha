@@ -1,5 +1,6 @@
 import lo from 'lodash';
-import { Account, mongooseModel } from '../models';
+import { Account } from '../models';
+import { createAccounts } from '../services/accounting';
 
 export async function getAccounts(ctx) {
   const { query } = ctx;
@@ -31,14 +32,7 @@ export async function createAccount(ctx) {
 
   ctx.assert(!invalid, 400, 'Account must have name');
 
-  const num = await nextNum();
-
-  const ids = await Account.merge(data.map((item, idx) => ({
-    num: num + idx,
-    ...item,
-  })));
-
-  const result = await Account.findNormalized({ id: { $in: ids } });
+  const result = await createAccounts(data);
 
   ctx.body = isArray ? result : result[0];
 
@@ -68,13 +62,4 @@ export async function deleteOne(ctx) {
 
   ctx.status = 204;
 
-}
-
-const mongoAccount = mongooseModel(Account);
-
-async function nextNum() {
-  const [max] = await mongoAccount.find({})
-    .limit(1)
-    .sort({ num: -1 });
-  return ((max && max.num) || 0) + 1;
 }
