@@ -37,6 +37,7 @@
     "sistemium-data-mongo": "^1.0.0",
     "sistemium-debug": "^1.0.1",
     "sistemium-mongo": "^1.11.0",
+    "uuid": "^9.0.0",
     "xmlbuilder2": "^2.4.1"
   },
   "devDependencies": {
