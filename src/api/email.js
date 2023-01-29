@@ -2,7 +2,7 @@ import { createTransport } from 'nodemailer';
 
 const { EMAIL_FROM = 'mailer@sistemium.net' } = process.env;
 
-const smtp ={
+const smtp = {
   host: 'mx.sistemium.net',
   port: 465,
   secure: false,
