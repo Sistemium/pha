@@ -9,17 +9,17 @@ export async function registerInit(ctx) {
   const { mobileNumber, email, name } = ctx.request.body;
 
   ctx.assert(mobileNumber || email, 400, 'Need mobileNumber or email');
-  ctx.assert(!mobileNumber || !email, 400, 'Need mobileNumber or email, not both');
+  // ctx.assert(!mobileNumber || !email, 400, 'Need mobileNumber or email, not both');
   ctx.assert(name, 400, 'Need name');
 
-  const filter = { mobileNumber, email };
-  if (!mobileNumber) {
-    delete filter.mobileNumber;
+  const $or = [];
+  if (mobileNumber) {
+    $or.push({ mobileNumber });
   }
-  if (!email) {
-    delete filter.email;
+  if (email) {
+    $or.push({ email });
   }
-  const existing = await Account.findOne(filter);
+  const existing = await Account.findOne({ $or });
 
   ctx.assert(!existing, 403, 'Account already exists');
 
