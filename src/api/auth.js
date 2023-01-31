@@ -72,10 +72,11 @@ export async function token(ctx) {
   const accessToken = await authorizeTokenController(ctx);
 
   const { accountId } = accessToken;
-
   ctx.assert(accountId, 400, 'Account is not registered');
 
-  const account = await Account.findByID(accountId);
+  const account = await Account.findOne({ id: accountId });
+  ctx.assert(account, 400, 'Account is not registered');
+
   const { num, org, programUrl, name } = account;
   const userAgent = ctx.get('user-agent');
   const version = agentBuildByUserAgent(userAgent);

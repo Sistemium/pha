@@ -42,7 +42,7 @@ export default async function (ctx) {
 
   ctx.assert(accessToken, 401);
 
-  const account = await Account.findByID(accessToken.accountId);
+  const account = await Account.findOne({ id: accessToken.accountId });
 
   ctx.assert(account, 401);
   ctx.assert(!account.isDisabled, 403, 'Account blocked');
