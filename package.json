@@ -23,6 +23,7 @@
   "homepage": "https://github.com/Sistemium/pha#readme",
   "dependencies": {
     "@koa/router": "^10.0.0",
+    "aws-sdk": "^2.1319.0",
     "dayjs": "^1.10.6",
     "esm": "^3.2.25",
     "ioredis": "^4.27.6",

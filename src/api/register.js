@@ -6,11 +6,12 @@ import { Account } from '../models';
 
 export async function registerInit(ctx) {
 
-  const { mobileNumber, email, name } = ctx.request.body;
+  const { mobileNumber, email: requestedEmail, name } = ctx.request.body;
 
-  ctx.assert(mobileNumber || email, 400, 'Need mobileNumber or email');
-  // ctx.assert(!mobileNumber || !email, 400, 'Need mobileNumber or email, not both');
+  ctx.assert(mobileNumber || requestedEmail, 400, 'Need mobileNumber or email');
   ctx.assert(name, 400, 'Need name');
+
+  const email = requestedEmail && requestedEmail.toLowerCase();
 
   const $or = [];
   if (mobileNumber) {

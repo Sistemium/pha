@@ -8,7 +8,7 @@ import randomatic from 'randomatic';
  * @return {String}
  */
 
-export default function randomString(pattern, length, options) {
+export default function randomString(pattern, length, options = {}) {
   const { suffix } = options;
   const random = randomatic(pattern, length, options);
   return `${random}${suffix || ''}`;

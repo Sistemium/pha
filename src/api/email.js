@@ -1,6 +1,10 @@
 import { createTransport } from 'nodemailer';
 
-const { EMAIL_FROM = 'mailer@sistemium.net' } = process.env;
+const {
+  EMAIL_FROM = 'mailer@sistemium.net',
+  EMAIL_SUBJECT = '',
+  EMAIL_PREFIX = '',
+} = process.env;
 
 const smtp = {
   host: 'mx.sistemium.net',
@@ -15,7 +19,7 @@ const transport = createTransport(smtp);
 
 export default async function (to, code) {
 
-  const text = `Confirmation code is ${code}`;
+  const text = `${EMAIL_PREFIX} ${code}`;
 
   const mail = {
     attachments: [],
@@ -26,7 +30,7 @@ export default async function (to, code) {
     // replyTo,
     text,
     html: `<p>${text}</p>`,
-    subject: 'Login confirmation',
+    subject: EMAIL_SUBJECT,
   };
   await transport.sendMail(mail);
 }

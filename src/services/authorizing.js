@@ -3,7 +3,9 @@ import sendmail from '../api/email';
 import { AccessToken } from '../models';
 import dayjs from '../lib/dates';
 import randomString from '../lib/random';
+import log from 'sistemium-debug';
 
+const { error } = log('authorizing');
 const {
   SMS_ORIGIN,
   TOKEN_SUFFIX = '@pha',
@@ -22,7 +24,12 @@ export async function createAuthTokenId(accountId, accountData, fixedCode = FIXE
   const code = fixedCode || randomString('0', 6);
 
   if (mobileNumber && SMS_ORIGIN && !fixedCode) {
-    await sms(mobileNumber, code);
+    try {
+      await sms(mobileNumber, code);
+    } catch (e) {
+      error('sms:', e.message);
+      throw Error('Error sending SMS');
+    }
   }
 
   if (email && !fixedCode) {
