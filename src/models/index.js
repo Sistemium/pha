@@ -19,7 +19,7 @@ class PHAModel extends Model {
   normalizeItem(item, defaults = {}, overrides = {}) {
     const { schema } = this;
     const all = mapValues(schema, (keySchema, key) => {
-      const res = overrides[key] || item[key] || defaults[key];
+      const res = ifUndefined(overrides[key], ifUndefined(item[key], defaults[key]));
       if (res === undefined) {
         if (keySchema.default) {
           return res;
@@ -68,4 +68,8 @@ export async function disconnect() {
 
 export function mongooseModel(model) {
   return adapter.getStoreModel(model.collection)
+}
+
+function ifUndefined(val1, val2) {
+  return val1 === undefined ? val2 : val1;
 }
