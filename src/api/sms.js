@@ -29,7 +29,7 @@ if (AWS_LOGIN && AWS_PASSWORD) {
 
 const sns = new AWS.SNS();
 
-export default async function(mobileNumber, code) {
+export async function awsSNS(mobileNumber, code) {
 
   const options = {
     Message: trim(`${SMS_PREFIX} ${code}`),

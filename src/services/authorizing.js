@@ -1,4 +1,4 @@
-import sms from '../api/sms';
+import * as sms from '../api/sms';
 import sendmail from '../api/email';
 import { AccessToken } from '../models';
 import dayjs from '../lib/dates';
@@ -11,6 +11,7 @@ const {
   TOKEN_SUFFIX = '@pha',
   TOKEN_CHARS = 'abcdefgh',
   FIXED_AUTH_CODE,
+  SMS_METHOD = 'awsSNS',
 } = process.env;
 
 const TOKEN_LIFETIME_DAYS = parseInt(process.env.TOKEN_LIFETIME_DAYS || '365', 10);
@@ -25,7 +26,7 @@ export async function createAuthTokenId(accountId, accountData, fixedCode = FIXE
 
   if (mobileNumber && SMS_ORIGIN && !fixedCode) {
     try {
-      await sms(mobileNumber, code);
+      await sms[SMS_METHOD](mobileNumber, code);
     } catch (e) {
       error('sms:', e.message);
       throw Error('Error sending SMS');
