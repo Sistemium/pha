@@ -7,12 +7,10 @@ export default {
       mobileNumber: String,
       email: String,
     },
-    token: {
-      type: String,
-      unique: true,
-    },
+    token: String,
     code: String,
     expiresAt: Date,
     attempts: { type: Number, default: 0 },
   },
+  indexes: [{ token: 1 }],
 };
