@@ -1,7 +1,7 @@
 import { startURL, agentBuildByUserAgent, apiURL } from './helpers';
 import dayjs from '../lib/dates';
 
-import { Account, AccessToken, mongooseModel } from '../models';
+import { Account, AccessToken, mongooseModel, Program } from '../models';
 import { assertEmail } from '../services/validating';
 import { authorizeToken, authorizeTokenController, CODE_ATTEMPTS, createAuthTokenId } from '../services/authorizing';
 
@@ -77,6 +77,7 @@ export async function token(ctx) {
   const account = await Account.findOne({ id: accountId });
   ctx.assert(account, 400, 'Account is not registered');
 
+  const { programCode } = ctx.request.body;
   const { num, org, programUrl, name } = account;
   const userAgent = ctx.get('user-agent');
   const version = agentBuildByUserAgent(userAgent);
@@ -101,6 +102,13 @@ export async function token(ctx) {
     name,
     redirectUri: startURL(org, program(), token),
   };
+
+  if (programCode) {
+    const program = await Program.findOne({ code: programCode, env: account.env || 'prod' })
+    if (program) {
+      ctx.body.config = program.config || {};
+    }
+  }
 
 }
 

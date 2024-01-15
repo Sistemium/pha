@@ -17,6 +17,7 @@ export default {
     salesman: Number,
     isDisabled: Boolean,
     lastAuth: Date,
+    env: String,
   },
   indexes: [
     { mobileNumber: 1 },
