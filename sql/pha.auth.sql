@@ -21,9 +21,9 @@ create or replace procedure pha.auth (
                 @fixedCode,
                 util.generateCode ()
             ) as [code]
-            , hash(newid())+'@pha' as [token]
+            , hash(newId())+'@pha' as [token]
             , 3600*24*365 as [expiresIn]
-            , dateadd(second, [expiresIn], now()) as [expiresAt]
+            , dateAdd(second, [expiresIn], now()) as [expiresAt]
         from pha.Agent
         where id = @agent
     ;
@@ -38,7 +38,7 @@ create or replace procedure pha.auth (
 
     if @fixedCode is null and @smsAccount is not null then
         set @fixedCode = (
-            select util.createSms (a.mobile_number, 'Код авторизации: '+[code])
+            select util.createSms (isNull(a.smsNumber, a.mobile_number), 'Код авторизации: '+[code])
             from pha.Agent a
                 join pha.AccessToken t on t.agent = a.id
             where a.id = @agent and t.id = @token
@@ -46,7 +46,7 @@ create or replace procedure pha.auth (
         trigger event smsProcessor;
     end if;
 
-    select uuidtostr(t.xid) id,
+    select uuidToStr(t.xid) id,
             if @fixedCode is null and @smsAccount is null
                 then t.code
             endif as [password]
