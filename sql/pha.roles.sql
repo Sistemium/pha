@@ -16,7 +16,7 @@ begin
     declare @xid GUID;
     declare @expiresIn int;
 
-    set @xid = newid ();
+    set @xid = newId ();
 
     insert into pha.log with auto name
     select
@@ -48,8 +48,8 @@ begin
     ;
 
     select
-        xmlconcat(
-            xmlelement('account', xmlforest(
+        xmlConcat(
+            xmlElement('account', xmlForest(
                 coalesce(
                     regexp_substr(Agent.info,'(?<=username=)([^[:whitespace:]]*)'),
                     Agent.billing_name,
@@ -60,30 +60,30 @@ begin
                     regexp_substr(Agent.info,'(?<=email=)([^[:whitespace:]]*)'),
                     Agent.email
                 ) as [email],
-                Agent.mobile_number as [mobile-number],
-                Agent.org as [org],
+                isNull(Agent.smsNumber, Agent.mobile_number) as [mobile-number],
+                isNull(pha.orgByUserAgent(@userAgent, Agent.info), Agent.org) as [org],
                 Agent.xid as [authId]
             )),
-            xmlelement('token', xmlforest(
+            xmlElement('token', xmlForest(
                 @expiresAt as [expiresAt],
                 @expiresIn as [expiresIn]
             )),
-            xmlelement('roles',
-                xmlconcat(
+            xmlElement('roles',
+                xmlConcat(
 
-                    xmlelement('role', xmlelement('code','authenticated')),
-                    xmlelement('role',
-                        xmlelement('code','org'),
-                        xmlelement ('data',Agent.org)
+                    xmlElement('role', xmlElement('code','authenticated')),
+                    xmlElement('role',
+                        xmlElement('code','org'),
+                        xmlElement ('data',Agent.org)
                     ),
 
                     if Agent.program_url is not null then
-                        xmlelement('role', xmlelement('code','program-url'), xmlelement('data',Agent.program_url))
+                        xmlElement('role', xmlElement('code','program-url'), xmlElement('data',Agent.program_url))
                     end if,
 
                     (
-                        select xmlagg(
-                            xmlelement('role',xmlforest([code],[data]))
+                        select xmlAgg(
+                            xmlElement('role',xmlForest([code],[data]))
                             order by ar.code, ar.ord asc
                         )
                         from pha.accountRole (
@@ -103,12 +103,12 @@ begin
     ;
 
     set @result = isnull (@result,
-        xmlelement('error','Not authorized')
+        xmlElement('error','Not authorized')
     );
 
-    set @result = xmlelement(
+    set @result = xmlElement(
         'response',
-        xmlattributes('http://unact.net/xml/oauth' as xmlns),
+        xmlAttributes('http://unact.net/xml/oauth' as xmlns),
         @result
     );
 
