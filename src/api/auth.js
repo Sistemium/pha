@@ -28,6 +28,8 @@ export default async function (ctx) {
     return token(ctx);
   }
 
+  console.error('auth:invalid:credentials', JSON.stringify(ctx.request.body))
+
   ctx.throw(400, 'Either mobileNumber or ID required');
 
 }
@@ -48,6 +50,7 @@ async function login(ctx) {
   }
 
   const [account] = await Account.find(accountFilter);
+  console.info('auth:login', JSON.stringify(ctx.request.body))
   ctx.assert(account, 404, `Unknown ${mobileNumber ? 'mobileNumber' : 'email'}`);
 
   if (await shouldSuspendAccount(account)) {
