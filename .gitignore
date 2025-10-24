@@ -6,3 +6,4 @@ dist
 pm2
 .run
 import
+nodemon.json
