@@ -7,7 +7,8 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha -r esm --exit",
+    "test": "mocha -r esm --exit --ignore 'test/testUUID.js'",
+    "test:uuid": "mocha -r esm test/testUUID.js --exit",
     "dev": "nodemon src/api/index.js",
     "build": "rm -rf dist && cp -rv src dist && cp package.json dist"
   },

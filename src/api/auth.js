@@ -84,10 +84,10 @@ export async function token(ctx) {
   const accessToken = await authorizeTokenController(ctx);
 
   const { accountId } = accessToken;
-  ctx.assert(accountId, 400, 'Account is not registered');
+  ctx.assert(accountId, 404, 'Account not found');
 
   const account = await Account.findOne({ id: accountId });
-  ctx.assert(account, 400, 'Account is not registered');
+  ctx.assert(account, 404, 'Account not found');
 
   const { programCode } = ctx.request.body;
   const { num, org, programUrl, name } = account;

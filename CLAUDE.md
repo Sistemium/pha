@@ -10,7 +10,7 @@ PHA (Phone Authorization) is a Koa-based authentication service that handles pho
 
 ### Running the API Server
 ```bash
-npm run api
+npm run dev
 ```
 Starts the API server using nodemon with ESM support on port 3130 (configurable via PORT env var).
 
@@ -18,7 +18,12 @@ Starts the API server using nodemon with ESM support on port 3130 (configurable 
 ```bash
 npm test
 ```
-Runs all Mocha tests with ESM support. Tests include authentication flows, API endpoints, and data models.
+Runs all Mocha tests with ESM support. Tests include authentication flows, API endpoints, and data models. The UUID strength test is skipped by default to speed up test runs.
+
+```bash
+npm run test:uuid
+```
+Runs the UUID randomness strength test (chi-squared test, ~2 seconds).
 
 ### Building for Deployment
 ```bash
@@ -144,6 +149,8 @@ Run single test file:
 ```bash
 npx mocha -r esm test/testAuth.js --exit
 ```
+
+**Note:** The UUID strength test (`test/testUUID.js`) is skipped by default in `npm test` to speed up test runs. Run it separately with `npm run test:uuid` if needed.
 
 ### Important Notes
 

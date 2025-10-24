@@ -139,6 +139,7 @@ OR use generic `code` field:
 
 - `400` - Missing required parameters (ID, code)
 - `401` - Invalid verification code, auth code expired (max 3 attempts exceeded), or invalid auth token ID
+- `404` - Account not found
 
 ## User Registration
 
