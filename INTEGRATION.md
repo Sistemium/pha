@@ -96,6 +96,13 @@ OR use generic `code` field:
 }
 ```
 
+**IMPORTANT:** If the user account has an `env` field specified (e.g., "staging", "dev"), the `programCode` parameter becomes **required**. The system will verify that:
+
+1. A Program exists with the provided `programCode`
+2. The Program's `env` matches the account's `env`
+
+If either condition fails, the authentication will be rejected with a `403` error.
+
 **Response (200 OK):**
 
 ```json
@@ -120,9 +127,9 @@ OR use generic `code` field:
 
 **Error Responses:**
 
-- `400` - Invalid verification code
-- `401` - Auth code expired (max 3 attempts exceeded)
-- `404` - Invalid ID
+- `400` - Missing required parameters (ID, code)
+- `401` - Invalid verification code, auth code expired (max 3 attempts exceeded), or invalid auth token ID
+- `403` - programCode is required for this account, or invalid programCode/environment mismatch
 
 ## User Registration
 
@@ -371,6 +378,10 @@ class PHAClient {
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      if (response.status === 403 && errorText.includes('programCode')) {
+        throw new Error('This account requires a programCode parameter');
+      }
       throw new Error(`Verification failed: ${response.statusText}`);
     }
 

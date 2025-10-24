@@ -81,7 +81,15 @@ export async function token(ctx) {
   ctx.assert(account, 400, 'Account is not registered');
 
   const { programCode } = ctx.request.body;
-  const { num, org, programUrl, name } = account;
+  const { num, org, programUrl, name, env } = account;
+
+  // If account has env specified, programCode is required and must match
+  if (env) {
+    ctx.assert(programCode, 403, 'programCode is required for this account');
+    const program = await Program.findOne({ code: programCode, env });
+    ctx.assert(program, 403, 'Invalid programCode or environment mismatch');
+  }
+
   const userAgent = ctx.get('user-agent');
   const version = agentBuildByUserAgent(userAgent);
   const program = () => {

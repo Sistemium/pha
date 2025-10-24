@@ -98,7 +98,8 @@ export async function authorizeTokenController(ctx) {
     const res = await authorizeToken(ID, authCode);
     return res;
   } catch (e) {
-    ctx.throw(400, e.message);
+    // Authentication errors should return 401, not 400
+    ctx.throw(401, e.message);
   }
 
 }

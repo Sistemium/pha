@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "mocha -r esm --exit",
-    "api": "nodemon src/api/index.js",
+    "dev": "nodemon src/api/index.js",
     "build": "rm -rf dist && cp -rv src dist && cp package.json dist"
   },
   "repository": {

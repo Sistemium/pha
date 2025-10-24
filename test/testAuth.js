@@ -3,7 +3,7 @@ import supertest from 'supertest';
 
 import app from '../src/api';
 import { beforeEachReset, checkConnectMongo, disconnectMongo } from './helpers';
-import { AccessToken, Profile } from '../src/models';
+import { AccessToken, Profile, Program } from '../src/models';
 
 const api = supertest(app.callback());
 
@@ -112,6 +112,128 @@ describe('Auth API', function () {
       stcTabs: [{ a: 1 }],
       stcTabs2: [{ name: 'STMWKWebView' }],
     });
+
+  });
+
+  it('should require programCode for accounts with env', async function () {
+
+    const mobileNumber = '0987654321';
+
+    // Create account with env specified
+    const props = {
+      name: 'Test User',
+      mobileNumber,
+      org: 'dev',
+      env: 'staging',
+      stringRoles: 'stc',
+    };
+
+    await api
+      .post('/account')
+      .send(props)
+      .expect(200);
+
+    // Request auth code
+    const { body: { ID } } = await api
+      .post('/auth')
+      .send({ mobileNumber })
+      .expect(200);
+
+    const { code } = await AccessToken.findByID(ID);
+
+    // Try to verify without programCode - should fail with 403
+    await api
+      .post('/auth')
+      .send({ ID, code })
+      .expect(403);
+
+  });
+
+  it('should allow auth with valid programCode and matching env', async function () {
+
+    const mobileNumber = '0111222333';
+
+    // Create a Program with staging env
+    await Program.create({
+      code: 'testapp',
+      env: 'staging',
+      config: { feature1: true },
+    });
+
+    // Create account with env specified
+    const props = {
+      name: 'Test User 2',
+      mobileNumber,
+      org: 'dev',
+      env: 'staging',
+      stringRoles: 'stc',
+    };
+
+    await api
+      .post('/account')
+      .send(props)
+      .expect(200);
+
+    // Request auth code
+    const { body: { ID } } = await api
+      .post('/auth')
+      .send({ mobileNumber })
+      .expect(200);
+
+    const { code } = await AccessToken.findByID(ID);
+
+    // Verify with correct programCode and matching env - should succeed
+    const { body: authorized } = await api
+      .post('/auth')
+      .set('User-agent', 'TestApp/100')
+      .send({ ID, code, programCode: 'testapp' })
+      .expect(200);
+
+    expect(authorized).to.have.property('accessToken');
+    expect(authorized).to.have.property('name', 'Test User 2');
+    expect(authorized).to.have.property('config');
+    expect(authorized.config).to.deep.equal({ feature1: true });
+
+  });
+
+  it('should reject auth with wrong env programCode', async function () {
+
+    const mobileNumber = '0444555666';
+
+    // Create a Program with production env
+    await Program.create({
+      code: 'prodapp',
+      env: 'prod',
+      config: {},
+    });
+
+    // Create account with staging env
+    const props = {
+      name: 'Test User 3',
+      mobileNumber,
+      org: 'dev',
+      env: 'staging',
+      stringRoles: 'stc',
+    };
+
+    await api
+      .post('/account')
+      .send(props)
+      .expect(200);
+
+    // Request auth code
+    const { body: { ID } } = await api
+      .post('/auth')
+      .send({ mobileNumber })
+      .expect(200);
+
+    const { code } = await AccessToken.findByID(ID);
+
+    // Try to verify with programCode from different env - should fail with 403
+    await api
+      .post('/auth')
+      .send({ ID, code, programCode: 'prodapp' })
+      .expect(403);
 
   });
 
