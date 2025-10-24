@@ -1,1 +1,8 @@
-.idea/
+.idea
+.vscode
+node_modules
+dist
+*.sh
+pm2
+.run
+import

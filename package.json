@@ -1,0 +1,55 @@
+{
+  "name": "pha",
+  "version": "1.0.0",
+  "description": "Phone authorization",
+  "main": "src/api",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha -r esm --exit --ignore 'test/testUUID.js'",
+    "test:uuid": "mocha -r esm test/testUUID.js --exit",
+    "dev": "nodemon src/api/index.js",
+    "build": "rm -rf dist && cp -rv src dist && cp package.json dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sistemium/pha.git"
+  },
+  "author": "Sistemium UAB",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sistemium/pha/issues"
+  },
+  "homepage": "https://github.com/Sistemium/pha#readme",
+  "dependencies": {
+    "@koa/router": "^10.0.0",
+    "aws-sdk": "^2.1319.0",
+    "dayjs": "^1.10.6",
+    "esm": "^3.2.25",
+    "ioredis": "^4.27.6",
+    "koa": "^2.14.2",
+    "koa-bodyparser": "^4.4.1",
+    "koa-logger": "^3.2.1",
+    "lodash": "^4.17.21",
+    "nodemailer": "^6.9.0",
+    "qs": "^6.5.2",
+    "randomatic": "^3.1.1",
+    "sistemium-data": "^1.10.2",
+    "sistemium-data-mongo": "^1.3.2",
+    "sistemium-debug": "^1.0.1",
+    "sistemium-mongo": "^1.15.8",
+    "uuid": "^9.0.0",
+    "uuid-to-hex": "^1.1.1",
+    "xmlbuilder2": "^2.4.1"
+  },
+  "devDependencies": {
+    "@stdlib/stats": "^0.0.13",
+    "@stdlib/stats-chi2test": "^0.0.8",
+    "chai": "^4.3.4",
+    "mocha": "^8.4.0",
+    "mock-mongoose": "^8.0.0",
+    "nodemon": "^2.0.12",
+    "supertest": "^6.1.3"
+  }
+}

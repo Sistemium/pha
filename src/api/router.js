@@ -1,0 +1,29 @@
+import Router from '@koa/router';
+import * as account from './account';
+import auth from './auth';
+import roles from './roles';
+import { confirmRegister, registerInit } from './register';
+
+const router = new Router();
+
+router
+  .get('/account', account.getAccounts)
+  .get('/account/:id', account.getOne)
+  .put('/account/:id', account.updateOne)
+  .post('/account', account.createAccount)
+  .delete('/account/:id', account.deleteOne)
+;
+
+router
+  .post('/auth', auth)
+  .post('/register', registerInit)
+  .post('/confirm', confirmRegister)
+;
+
+router
+  .get('/roles.xml', roles)
+  .get('/roles.xml/:id', roles)
+  .get('/roles', roles)
+  .get('/roles/:id', roles);
+
+export default router;
