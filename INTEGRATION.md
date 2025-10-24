@@ -37,6 +37,21 @@ OR
 }
 ```
 
+**IMPORTANT:** If the user account has an `env` field specified (e.g., "staging", "dev"), you **must** include the `programCode` parameter:
+
+```json
+{
+  "mobileNumber": "+370612345678",
+  "programCode": "myapp"
+}
+```
+
+The system will verify that:
+1. A Program exists with the provided `programCode`
+2. The Program's `env` matches the account's `env`
+
+If either condition fails, no SMS/email will be sent and the request will be rejected with a `403` error.
+
 **Response (200 OK):**
 
 ```json
@@ -50,7 +65,7 @@ The `ID` is a temporary token identifier that you'll use in the next step. The u
 **Error Responses:**
 
 - `404` - Phone number or email not found
-- `403` - Account suspended (too many failed attempts)
+- `403` - Account suspended (too many failed attempts), or programCode is required/invalid for this account
 - `400` - Invalid request
 
 ### Step 2: Verify Code and Get Access Token
@@ -86,7 +101,7 @@ OR use generic `code` field:
 }
 ```
 
-**Optional:** Include `programCode` to receive application-specific configuration:
+**Optional:** Include `programCode` to receive application-specific configuration in the response:
 
 ```json
 {
@@ -96,12 +111,7 @@ OR use generic `code` field:
 }
 ```
 
-**IMPORTANT:** If the user account has an `env` field specified (e.g., "staging", "dev"), the `programCode` parameter becomes **required**. The system will verify that:
-
-1. A Program exists with the provided `programCode`
-2. The Program's `env` matches the account's `env`
-
-If either condition fails, the authentication will be rejected with a `403` error.
+**Note:** If the account has an `env` field, the `programCode` was already validated in Step 1 when requesting the verification code.
 
 **Response (200 OK):**
 
@@ -129,7 +139,6 @@ If either condition fails, the authentication will be rejected with a `403` erro
 
 - `400` - Missing required parameters (ID, code)
 - `401` - Invalid verification code, auth code expired (max 3 attempts exceeded), or invalid auth token ID
-- `403` - programCode is required for this account, or invalid programCode/environment mismatch
 
 ## User Registration
 
@@ -347,10 +356,11 @@ class PHAClient {
   }
 
   // Step 1: Request verification code
-  async requestCode(mobileNumber, email) {
+  async requestCode(mobileNumber, email, programCode = null) {
     const body = {};
     if (mobileNumber) body.mobileNumber = mobileNumber;
     if (email) body.email = email;
+    if (programCode) body.programCode = programCode;
 
     const response = await fetch(`${this.baseURL}/auth`, {
       method: 'POST',
@@ -359,6 +369,10 @@ class PHAClient {
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      if (response.status === 403 && errorText.includes('programCode')) {
+        throw new Error('This account requires a programCode parameter');
+      }
       throw new Error(`Authentication failed: ${response.statusText}`);
     }
 
@@ -378,10 +392,6 @@ class PHAClient {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      if (response.status === 403 && errorText.includes('programCode')) {
-        throw new Error('This account requires a programCode parameter');
-      }
       throw new Error(`Verification failed: ${response.statusText}`);
     }
 
@@ -440,11 +450,23 @@ class PHAClient {
 // Usage example
 const client = new PHAClient('https://pha.example.com');
 
-// Login flow
+// Login flow (without env)
 const ID = await client.requestCode('+370612345678');
 // User receives SMS with code
 const authData = await client.verifyCode(ID, '123456');
 localStorage.setItem('accessToken', authData.accessToken);
+
+// Login flow for account with env (e.g., staging)
+try {
+  const ID = await client.requestCode('+370612345678', null, 'myapp');
+  // User receives SMS with code
+  const authData = await client.verifyCode(ID, '123456', 'myapp');
+  localStorage.setItem('accessToken', authData.accessToken);
+} catch (error) {
+  if (error.message.includes('programCode')) {
+    console.error('This account requires a valid programCode');
+  }
+}
 
 // Get roles
 const roles = await client.getRoles(authData.accessToken);

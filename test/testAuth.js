@@ -133,18 +133,10 @@ describe('Auth API', function () {
       .send(props)
       .expect(200);
 
-    // Request auth code
-    const { body: { ID } } = await api
-      .post('/auth')
-      .send({ mobileNumber })
-      .expect(200);
-
-    const { code } = await AccessToken.findByID(ID);
-
-    // Try to verify without programCode - should fail with 403
+    // Try to request auth code without programCode - should fail with 403
     await api
       .post('/auth')
-      .send({ ID, code })
+      .send({ mobileNumber })
       .expect(403);
 
   });
@@ -174,15 +166,15 @@ describe('Auth API', function () {
       .send(props)
       .expect(200);
 
-    // Request auth code
+    // Request auth code with correct programCode
     const { body: { ID } } = await api
       .post('/auth')
-      .send({ mobileNumber })
+      .send({ mobileNumber, programCode: 'testapp' })
       .expect(200);
 
     const { code } = await AccessToken.findByID(ID);
 
-    // Verify with correct programCode and matching env - should succeed
+    // Verify with correct code - should succeed
     const { body: authorized } = await api
       .post('/auth')
       .set('User-agent', 'TestApp/100')
@@ -221,18 +213,10 @@ describe('Auth API', function () {
       .send(props)
       .expect(200);
 
-    // Request auth code
-    const { body: { ID } } = await api
-      .post('/auth')
-      .send({ mobileNumber })
-      .expect(200);
-
-    const { code } = await AccessToken.findByID(ID);
-
-    // Try to verify with programCode from different env - should fail with 403
+    // Try to request auth code with programCode from different env - should fail with 403
     await api
       .post('/auth')
-      .send({ ID, code, programCode: 'prodapp' })
+      .send({ mobileNumber, programCode: 'prodapp' })
       .expect(403);
 
   });
